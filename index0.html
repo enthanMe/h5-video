@@ -1,0 +1,99 @@
+<!-- 播放rtmp网络视频 -->
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>播放器</title>
+		<meta charset="UTF-8">
+		<link href="./videolib/css/video-js.min.css" rel="stylesheet" type="text/css">
+		<link href="./videolib/css/live.css" rel="stylesheet" type="text/css">
+		<script src="./videolib/js/video.min.js"></script>
+		<script src="./videolib/videojs-flash.min.js"></script>
+	</head>
+	<body>
+
+		<div id="root">
+			<div class="index_container">
+				<div class="index_mainContainer">
+					<div class="index_playContainer">
+						<div class="index_playContainer_inner">
+							<div class="index_container_inner_inner">
+								<div class="styles_container">
+									<div class="index__container">
+										<!--vjs-big-play-centered 播放按钮居中-->
+										<!--poster默认的显示界面，就是还没点播放，给你显示的界面-->
+										<!--controls 规定浏览器应该为视频提供播放控件-->
+										<!--preload="auto" 是否提前加载-->
+										<!--autoplay 自动播放-->
+										<!--loop=true 自动循环-->
+										<!--data-setup='{"example_option":true}' 可以把一些属性写到这个里面来，如data-setup={"autoplay":true}-->
+										<video id="myvideo" width="100%" height="100%" class="video-js vjs-default-skin vjs-big-play-centered" style="position:static"
+											x5-video-player-type="h5"
+											x5-video-orientation="landscape|portrait"
+											x5-playsinline="true"
+											x-webkit-airplay="allow"
+											x5-video-player-fullscreen="true"
+											poster="./videolib/oceans.png"
+											data-setup='{}'
+											x5-video-player-fullscreen="true"
+											style="object-fit:fill"
+											preload="auto"
+											autoplay
+											muted
+											controls>
+											<!-- <source src='rtmp://10.255.253.42:1935/live/5012329?{\"confId\":5012329,\"userId\":481929,\"token\":\"cde027c8-7be1-4255-a211-958da300671b\",\"type\":\"play\"}' type="rtmp/flv"> -->
+										</video>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="index_sidebarContainer">
+					<ul class="index_itemsContainer">
+						<li class="index_item"><button type="button">直播详情</button></li>
+					</ul>
+					<div class="index_detailsContainer index_container_details">
+						<h1>测试直播会议</h1>
+						<p class="index_detailItems">
+							<img src="./videolib/photo/time.png" alt="time"/>
+							时间: 2020-04-12 17:00-19:00
+						</p>
+						<p class="index_detailItems">
+							<img src="./videolib/photo/position.png" alt="time"/>
+							地点: 北京西城区医院
+						</p>
+						<hr/>
+						<p class="index_detailItems">详情</p>
+						<pre>关于页面的设计</pre>
+					</div>
+				</div>
+			</div>
+	 	</div>
+
+		<script>
+			// 获取浏览器地址
+			var href = window.location.href;
+			console.log(href.substring(href.lastIndexOf("?") + 1));
+
+			// 弹框获取直播密码
+			// var password = prompt("请输入直播密码");
+			// console.log(password);
+
+			// 请求获取rtmp直播地址
+			// videojs.options.flash.swf = './videolib/video-js.swf'
+			var player = videojs("myvideo", {
+				// techOrder: ['html5', 'flash'],
+				sources: [{
+						src: 'rtmp://10.255.253.42:1935/live/5012329?{\"confId\":5012329,\"userId\":481929,\"token\":\"cde027c8-7be1-4255-a211-958da300671b\",\"type\":\"play\"}',
+						type: 'rtmp/flv'
+				}]
+			}, function() {
+				console.log("videojs播放器初始化成功")
+			});
+
+			player.play();
+
+		</script>
+	</body>
+</html>

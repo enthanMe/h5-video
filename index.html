@@ -1,0 +1,149 @@
+<!-- 播放rtmp网络视频 -->
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<title>播放器</title>
+		<meta charset="UTF-8">
+		<link href="./videolib/css/video-js.min.css" rel="stylesheet" type="text/css">
+		<link href="./videolib/css/live.css" rel="stylesheet" type="text/css">
+		<script src="./videolib/js/video.min.js"></script>
+		<script src="./videolib/videojs-flash.min.js"></script>
+		<script src="./videolib/js/jquery-1.11.1.js"></script>
+	</head>
+
+	<body>
+		<div id="root">
+			<div class="index_container">
+				<div class="index_mainContainer">
+					<div class="index_playContainer">
+						<div class="index_playContainer_inner">
+							<div class="index_container_inner_inner">
+								<div class="styles_container">
+									<div class="index__container">
+										<!-- <video id="myvideo" class="video-js vjs-big-play-centered" autoplay controls>
+												<source src='rtmp://10.255.253.42:1935/live/2053566?{"type":"play","confId":2053566,"token":"df951844-0d43-449c-a6be-eebe198e8346"}' type="rtmp/flv">
+										</video> -->
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="index_sidebarContainer">
+					<ul class="index_itemsContainer">
+						<li class="index_item"><button type="button">直播详情</button></li>
+					</ul>
+					<div class="index_detailsContainer index_container_details">
+						<h1 id="confName"></h1>
+						<p class="index_detailItems">
+							<img src="./videolib/photo/time.png" alt="time"/>
+							<a id="startTime"></a>
+						</p>
+						<p class="index_detailItems">
+							<img src="./videolib/photo/time.png" alt="time"/>
+							<a id="endTime"></a>
+						</p>
+						<p class="index_detailItems">
+							<img src="./videolib/photo/position.png" alt="time"/>
+							<a id="sponsor"></a>
+						</p>
+						<hr/>
+						<p class="index_detailItems">详情</p>
+					</div>
+				</div>
+			</div>
+	 	</div>
+
+		<script>
+			// 弹框获取直播密码
+			var password = prompt("请输入直播密码");
+
+			// 获取浏览器地址
+			var href = window.location.href;
+			var sn = href.substring(href.lastIndexOf("=") + 1);
+
+			// 获取会议详情
+			$.ajax({
+				type: 'POST',
+				dataType: 'json',
+				url: 'http://172.24.4.149:9100/appConference/v1/showbybillingcodeencrypt',
+				headers: {
+					'Content-Type':'application/json',
+					'authorization':'cde027c8-7be1-4255-a211-958da300671b',
+					'appId':'dd0cfa8d0f2b4d49a34d07335e096961',
+					'device':'WINDOWS',
+					'timeZone':'Asia/Shanghai',
+					'tenantCode':'DEFAULT'
+				},
+				data: JSON.stringify({'billingCode':sn}),
+				success: function(data) {
+					$('#confName').text(data.value.confName);
+					$('#startTime').text('开始时间：' + data.value.startTime);
+					$('#endTime').text('结束时间：' + data.value.endTime);
+					$('#sponsor').text('发起人：' + (data.value.sponsor == null ? '' : data.value.sponsor));
+				}
+			});
+
+			// 获取直播地址
+			// var living = false;
+			// if (!living) {
+			// 	setInterval(function(){
+			//
+			// 	}, 10000);
+			// }
+
+			var appId = '';
+			$.ajax({
+				type: 'POST',
+				dataType: 'json',
+				url: 'http://172.24.4.149:9100/appConference/v1/joinbylive',
+				headers: {
+					'Content-Type':'application/json',
+					'authorization':'cde027c8-7be1-4255-a211-958da300671b',
+					'appId': appId,
+					'device':'WINDOWS',
+					'timeZone':'Asia/Shanghai',
+					'tenantCode':'DEFAULT'
+				},
+				data: JSON.stringify({'sn':sn, 'name':'游客-' + Math.round(Math.random() * 1000), 'password':password}),
+				success: function(data) {
+					console.log(data);
+					if (data.code == '00000') {
+						living = true;
+						appId = data.value.appId;
+
+						// 播放地址参数
+						// var params = {
+						// 	"type" : "play",
+						// 	"confId" : data.value.confId,
+						// 	"token" : data.value.token,
+						// 	"clientId" : appId
+						// };
+
+						// 解析地址
+						var sourceSrc = data.value.liveUrl + "?{\\\"confId\\\":" + data.value.confId
+							+ ",\\\"token\\\":\\\"" + data.value.token + "\\\",\\\"clientId\\\":\\\"" + appId + "\\\",\\\"type\\\":\\\"play\\\"}";
+						console.log(sourceSrc);
+
+						// 播放直播
+						play(sourceSrc);
+					}
+				}
+			});
+
+			// 拉流播放
+			function play(sourceSrc) {
+				var video = "<video id='myvideo' class='video-js vjs-big-play-centered' autoplay controls>" +
+					"<source src='"+ sourceSrc +"' type='rtmp/flv'>" + "</video>";
+				$('.index__container').append(video);
+
+				var player = videojs("myvideo", {}, function() {
+					console.log("videojs播放器初始化成功");
+				});
+				player.play();
+			}
+		</script>
+	</body>
+</html>
